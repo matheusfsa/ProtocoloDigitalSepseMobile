@@ -1,52 +1,48 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { Actions } from 'react-native-router-flux';
 import {
   StyleSheet,
   Text,
   View,
   TextInput,
-  Button,
   TouchableHighlight,
   Image,
   Alert
 } from 'react-native';
-import { Actions } from 'react-native-router-flux';
+import { connect } from 'react-redux';
 
-export default class LoginView extends Component {
+import { modificaNickName, modificaSenha, realizaLogin } from '../actions/ProfissionalActions';
 
-  constructor(props) {
-    super(props);
-    this.state = {
-      nick_name: "",
-	    password:""
-    }
-  }
+class Login extends Component {
+
+
   onClickLogin = () => {
-    if(this.state.nick == ""){
+    const { nick_name, senha } = this.props;
+
+    if(nick_name == ""){
       Alert.alert("Erro", "O campo nickname deve ser preenchido");
-    }else if(this.state.password == ""){
-      Alert.alert("Erro", "O campo password deve ser preenchido");
+    }else if(senha == ""){
+      Alert.alert("Erro", "O campo senha deve ser preenchido");
       
     }else{
       const user ={
-        "nick_name": this.state.nick_name,
-        "nome":null,
-        "senha":this.state.password,
-        "sobrenome":null,
-        "tipo":null,
-        "codigo":null
+        nick_name: nick_name,
+        nome:null,
+        senha:senha,
+        sobrenome:null,
+        tipo:null,
+        codigo:null
       };
       Alert.alert("user", JSON.stringify(user));
       axios.post("http://10.0.2.2:8080/api/profissional/login", user)
         .then(res => {
-          Alert.alert("Resultado", JSON.stringify(res.data));
           Actions.telaPrincipal();
         })
         .catch(error => {
           Alert.alert("Erro", error.response.data.errors[0]);
         }
       );
-      //Actions.telaPrincipal();
     }
   }
   onClickListener = (viewId) => {
@@ -61,16 +57,16 @@ export default class LoginView extends Component {
           <TextInput style={styles.inputs}
               placeholder="Nickname"
               underlineColorAndroid='transparent'
-              onChangeText={(nick_name) => this.setState({nick_name})}/>
+              onChangeText={(nick_name) => this.props.modificaNickName(nick_name)}/>
         </View>
         
         <View style={styles.inputContainer}>
           <Image style={styles.inputIcon} source={{uri: 'https://png.icons8.com/key-2/ultraviolet/50/3498db'}}/>
           <TextInput style={styles.inputs}
-              placeholder="Password"
+              placeholder="Senha"
               secureTextEntry={true}
               underlineColorAndroid='transparent'
-              onChangeText={(password) => this.setState({password})}/>
+              onChangeText={(senha) => this.props.modificaSenha(senha)}/>
         </View>
 
         <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={() => this.onClickLogin()}>
@@ -85,6 +81,15 @@ export default class LoginView extends Component {
     );
   }
 }
+
+const mapStateToProps = state => (
+  {
+      nick_name: state.ProfissionalReducer.nick_name,
+      senha: state.ProfissionalReducer.senha
+  }
+)
+
+export default connect(mapStateToProps, { modificaNickName, modificaSenha, realizaLogin })(Login);
 
 const styles = StyleSheet.create({
   container: {
@@ -132,4 +137,5 @@ const styles = StyleSheet.create({
     color: 'white',
   }
 });
+
  
