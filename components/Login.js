@@ -34,9 +34,10 @@ class Login extends Component {
         tipo:null,
         codigo:null
       };
-      Alert.alert("user", JSON.stringify(user));
+      
       axios.post("http://10.0.2.2:8080/api/profissional/login", user)
         .then(res => {
+          Alert.alert("user", JSON.stringify(res.data.data));
           Actions.telaPrincipal();
         })
         .catch(error => {
