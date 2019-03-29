@@ -1,20 +1,24 @@
 import React, { Component } from 'react';
 import { AppRegistry, SectionList, StyleSheet, Text, View, Alert, ScrollView } from 'react-native';
-import { SearchBar, Header, ListItem } from 'react-native-elements';
+import { SearchBar, Header, ListItem, Icon } from 'react-native-elements';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
 import axios from 'axios';
+import { modificaListAvaliacao, modificaListEmTratamento, modificaListParaTratamento } from '../actions/ProfissionalActions';
+import SearchHeader from 'react-native-search-header';
 class TelaPrincipal extends Component {
    state = {
     search: '',
+    text: '',
     list_em_tratamento :[],
     list_avaliacao :[],
     list_para_tratamento :[]
+
   };
   
-
-  updateSearch = search => {
-    this.setState({ search });
+ 
+  updateSearch = text => {
+    this.setState({ text });
   };
   componentWillMount(){
     axios.get("http://10.0.2.2:8080/api/consulta_pacientes/tratamento/"+this.props.nick_name)
@@ -22,6 +26,7 @@ class TelaPrincipal extends Component {
       console.log(JSON.stringify(res.data.data));
       let list_em_tratamento = res.data.data;
       this.setState({list_em_tratamento});
+      this.props.modificaListEmTratamento(list_em_tratamento);
       console.log(this.state.list_em_tratamento[0]);
     })
     .catch(error => {
@@ -31,16 +36,18 @@ class TelaPrincipal extends Component {
       console.log(JSON.stringify(res.data.data));
       let list_para_tratamento = res.data.data;
       this.setState({list_para_tratamento});
+      this.props.modificaListParaTratamento(list_para_tratamento);
       console.log(this.state.list_para_tratamento[0]);
     })
     .catch(error => {
     });
-    if(this.props.tipo == "1"){
+    if(this.props.tipo == "0"){
       axios.get("http://10.0.2.2:8080/api/consulta_pacientes/avaliacaoMed")
       .then(res => {
         console.log(JSON.stringify(res.data.data));
         let list_avaliacao = res.data.data;
         this.setState({list_avaliacao});
+        this.props.modificaListAvaliacao(list_avaliacao);
         console.log(this.state.list_avaliacao[0]);
       })
       .catch(error => {
@@ -52,50 +59,74 @@ class TelaPrincipal extends Component {
         console.log(JSON.stringify(res.data.data));
         let list_avaliacao = res.data.data;
         this.setState({list_avaliacao});
+        this.props.modificaListAvaliacao(list_avaliacao);
         console.log(this.state.list_avaliacao[0]);
       })
       .catch(error => {
       });
     }
   }
-  
+  renderSeparator = () => {
+    return (
+      <View
+        style={{
+          height: 1,
+          width: '86%',
+          backgroundColor: '#CED0CE',
+          marginLeft: '14%',
+        }}
+      />
+    );
+  };
+  renderHeader = () => {
+    <View style={styles.container}>
+    <Header
+      leftComponent={{ icon: 'menu', color: '#fff' }}
+      centerComponent={{ text: 'Protocolo digital Sepse', style: { color: '#fff' } }}
+      rightComponent={<Icon name = 'search' color= '#fff' onPress= {() => this.searchHeader.show()} />}
+      containerStyle={{backgroundColor:'#00b5ec'}}
+      />
+    <View style = { styles.status }/>
+    <SearchHeader
+        ref = {(searchHeader) => {
+            this.searchHeader = searchHeader;
+        }}
+        placeholder = 'Search...'
+        placeholderColor = 'gray'
+        onClear = {() => {
+            console.log(`Clearing input!`);
+        }}
+        onEnteringSearch = {(event) =>{
+          console.log(event.nativeEvent.text);
+          let text = event.nativeEvent.text
+          this.setState({text})
+          const contains = (value) => {
+            let str = value.nome + " " + value.sobrenome;
+            console.log("str: " + str + " text: " + text  + "res: " + str.includes(text) )
+            return str.includes(this.state.text);
+          }
+          let list_em_tratamento = this.props.list_em_tratamento.filter(contains);
+          let list_avaliacao = this.props.list_avaliacao.filter(contains)
+          let list_para_tratamento = this.props.list_para_tratamento.filter(contains)
+          this.setState({list_em_tratamento});
+          this.setState({list_avaliacao});
+          this.setState({list_para_tratamento});
+        }}
+      
+     />
+     </View> 
+    
+    
+  }
   
   render() {
-    
-    const list = [
-            {
-              name: 'Amy Farha',
-              avatar_url: 'https://s3.amazonaws.com/uifaces/faces/twitter/ladylexy/128.jpg',
-              subtitle: 'Vice President'
-            },
-            {
-              name: 'Chris Jackson',
-              avatar_url: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
-              subtitle: 'Vice Chairman'
-            },
-            {
-              name: 'José',
-              avatar_url: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
-              subtitle: 'Vice Chairman'
-            },
-            {
-              name: 'João',
-              avatar_url: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
-              subtitle: 'Vice Chairman'
-            }
-        ];
+
     const { search } = this.state;
     return (
     <View style={styles.container}>
       <ScrollView >
-
-         <Header
-            leftComponent={{ icon: 'menu', color: '#fff' }}
-            centerComponent={{ text: 'Protocolo digital Sepse', style: { color: '#fff' } }}
-            rightComponent={{ icon: 'search', color: '#fff' }}
-            containerStyle={{backgroundColor:'#00b5ec'}}
-            
-        	/>
+        
+          
           <View>
             <Text style={styles.sectionHeader}>Pacientes em Tratamento</Text>
             {
@@ -103,6 +134,7 @@ class TelaPrincipal extends Component {
               <ListItem
                 key={i}
                 title={l.nome + " " + l.sobrenome}
+                subtitle={"Registro: " + l.registro}
                 onPress={()=>Actions.pergunta()}
                 chevron
               />
@@ -116,6 +148,7 @@ class TelaPrincipal extends Component {
               <ListItem
                 key={i}
                 title={l.nome + " " + l.sobrenome}
+                subtitle={"Registro: " + l.registro}
                 onPress={()=>Actions.pergunta()}
                 chevron
               />
@@ -129,6 +162,7 @@ class TelaPrincipal extends Component {
                 <ListItem
                   key={i}
                   title={l.nome + " " + l.sobrenome}
+                  subtitle={"Registro: " + l.registro}
                   onPress={()=>Actions.pergunta()}
                   chevron
                 />
@@ -146,11 +180,14 @@ const mapStateToProps = state => (
       senha: state.ProfissionalReducer.senha,
       sobrenome: state.ProfissionalReducer.sobrenome,
       tipo:state.ProfissionalReducer.tipo,
-      codigo:state.ProfissionalReducer.codigo
+      codigo:state.ProfissionalReducer.codigo,
+      list_avaliacao : state.ProfissionalReducer.list_avaliacao,
+      list_em_tratamento : state.ProfissionalReducer.list_em_tratamento,
+      list_para_tratamento : state.ProfissionalReducer.list_para_tratamento
   }
 )
 
-export default connect(mapStateToProps, null)(TelaPrincipal);
+export default connect(mapStateToProps, {modificaListAvaliacao,modificaListEmTratamento, modificaListParaTratamento})(TelaPrincipal);
 const styles = StyleSheet.create({
   container: {
    flex: 1,

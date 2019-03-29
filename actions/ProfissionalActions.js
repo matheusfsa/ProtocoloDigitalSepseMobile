@@ -32,6 +32,25 @@ export const modificaCodigo = (texto) => {
         payload: texto
     }
 }
+
+export const modificaListEmTratamento = (texto) => {
+  return {
+      type: 'modifica_list_em_tratamento',
+      payload: texto
+  }
+}
+export const modificaListAvaliacao = (texto) => {
+  return {
+      type: 'modifica_list_avaliacao',
+      payload: texto
+  }
+}
+export const modificaListParaTratamento = (texto) => {
+  return {
+      type: 'modifica_list_para_tratamento',
+      payload: texto
+  }
+}
 export const cadastraUsuario = ({ nome, email, senha }) => {
     alert(senha);
     return {

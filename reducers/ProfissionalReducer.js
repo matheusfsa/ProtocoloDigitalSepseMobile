@@ -4,7 +4,10 @@ const INITIAL_STATE = {
     senha:"",
     sobrenome:null,
     tipo:null,
-    codigo:null
+    codigo:null,
+    list_em_tratamento :[],
+    list_avaliacao :[],
+    list_para_tratamento :[]
 }
 export default (state = INITIAL_STATE, action) => {
     console.log(action);
@@ -25,6 +28,15 @@ export default (state = INITIAL_STATE, action) => {
     }
     if(action.type == 'modifica_codigo') {
         return { ...state, codigo: action.payload }
+    }
+    if(action.type == 'modifica_list_em_tratamento') {
+        return { ...state, list_em_tratamento: action.payload }
+    }
+    if(action.type == 'modifica_list_avaliacao') {
+        return { ...state, list_avaliacao: action.payload }
+    }
+    if(action.type == 'modifica_list_para_tratamento') {
+        return { ...state, list_para_tratamento: action.payload }
     }
     return state;
 }
