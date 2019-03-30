@@ -10,26 +10,48 @@ import {
   Image,
   Alert
 } from 'react-native';
+import RadioGroup from 'react-native-radio-buttons-group';
 import { connect } from 'react-redux';
 
-import { modificaNickName, modificaSenha, realizaLogin } from '../actions/ProfissionalActions';
+import { modificaNickName, modificaCodigo, modificaTipo } from '../actions/ProfissionalActions';
 
 class Login extends Component {
-
-
-  onClickLogin = () => {
-    const { nick_name, senha } = this.props;
-
-    if(nick_name == ""){
-      Alert.alert("Erro", "O campo nickname deve ser preenchido");
-    }else if(senha == ""){
-      Alert.alert("Erro", "O campo senha deve ser preenchido");
+  state = {
+    data: [
+      {
+          label: 'Médica(o)',
+          value: "0"
+      },
+      {
+          label: 'Enfermeira(o)',
+          value:"1"
+      }
       
+  ]
+  }
+  onPress = data => {
+    this.setState({ data });
+    let selectedButton = this.state.data.find(e => e.selected == true);
+    selectedButton = selectedButton ? selectedButton.value : this.state.data[0].value;
+    console.log("botão selecionado " + selectedButton);
+    this.props.modificaTipo(selectedButton);
+  }
+  
+  onClickLogin = () => {
+    const { codigo, tipo } = this.props;
+    let nick_name = "";
+    if (tipo  == "0"){
+      nick_name = "med"+codigo;
+    }else{
+      nick_name = "enf"+codigo;
+    }
+    this.props.modificaNickName(nick_name);
+    if(codigo == ""){
+      Alert.alert("Erro", "O campo deve ser preenchido");
     }else{
       const user ={
         nick_name: nick_name,
         nome:null,
-        senha:senha,
         sobrenome:null,
         tipo:null,
         codigo:null
@@ -51,33 +73,27 @@ class Login extends Component {
   }
 
   render() {
+    
+    
     return (
       <View style={styles.container}>
+        
         <View style={styles.inputContainer}>
           <Image style={styles.inputIcon} source={{uri: "https://img.icons8.com/ultraviolet/50/000000/gender-neutral-user.png"}}/>
           <TextInput style={styles.inputs}
-              placeholder="Nickname"
+              placeholder="CRM/COREN"
               underlineColorAndroid='transparent'
-              onChangeText={(nick_name) => this.props.modificaNickName(nick_name)}/>
+              onChangeText={(codigo) => this.props.modificaCodigo(codigo)}/>
         </View>
-        
-        <View style={styles.inputContainer}>
-          <Image style={styles.inputIcon} source={{uri: 'https://png.icons8.com/key-2/ultraviolet/50/3498db'}}/>
-          <TextInput style={styles.inputs}
-              placeholder="Senha"
-              secureTextEntry={true}
-              underlineColorAndroid='transparent'
-              onChangeText={(senha) => this.props.modificaSenha(senha)}/>
+        <View style={styles.inputTipo}>
+          <RadioGroup radioButtons={this.state.data} onPress={this.onPress} flexDirection="row"/>
         </View>
+          
 
         <TouchableHighlight style={[styles.buttonContainer, styles.loginButton]} onPress={() => this.onClickLogin()}>
           <Text style={styles.loginText}>Login</Text>
         </TouchableHighlight>
 
-
-        <TouchableHighlight style={styles.buttonContainer} onPress={() => this.onClickListener('register')}>
-            <Text>Cadastre-se</Text>
-        </TouchableHighlight>
       </View>
     );
   }
@@ -85,12 +101,12 @@ class Login extends Component {
 
 const mapStateToProps = state => (
   {
-      nick_name: state.ProfissionalReducer.nick_name,
-      senha: state.ProfissionalReducer.senha
+      codigo: state.ProfissionalReducer.codigo,
+      tipo: state.ProfissionalReducer.tipo
   }
 )
 
-export default connect(mapStateToProps, { modificaNickName, modificaSenha, realizaLogin })(Login);
+export default connect(mapStateToProps, { modificaNickName, modificaCodigo,modificaTipo })(Login);
 
 const styles = StyleSheet.create({
   container: {
@@ -98,6 +114,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
+  },
+  inputTipo: {
+    borderBottomColor: 'white',
+    backgroundColor: '#FFFFFF',
+    borderRadius:30,
+    borderBottomWidth: 1,
+    width:250,
+    height:45,
+    marginBottom:20,
+    flexDirection: 'row',
+    alignItems:'center'
   },
   inputContainer: {
       borderBottomColor: '#00b5ec',

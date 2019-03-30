@@ -7,12 +7,7 @@ export const modificaNickName = (texto) => {
     }
 }
 
-export const modificaSenha = (texto) => {
-    return {
-        type: 'modifica_senha',
-        payload: texto
-    }
-}
+
 
 export const modificaNome = (texto) => {
     return {
