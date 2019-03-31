@@ -77,7 +77,7 @@ class Login extends Component {
     
     return (
       <View style={styles.container}>
-        
+        <Image style={styles.logo} source={require('../imgs/logo.png')}/>
         <View style={styles.inputContainer}>
           <Image style={styles.inputIcon} source={{uri: "https://img.icons8.com/ultraviolet/50/000000/gender-neutral-user.png"}}/>
           <TextInput style={styles.inputs}
@@ -114,6 +114,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'white',
+  },
+  logo:{
+    marginBottom:60
   },
   inputTipo: {
     borderBottomColor: 'white',

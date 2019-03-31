@@ -6,6 +6,8 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import { modificaListAvaliacao, modificaListEmTratamento, modificaListParaTratamento } from '../actions/ProfissionalActions';
 import { modificaPaciente } from '../actions/PacienteActions';
+import { modificaTratamento } from '../actions/TratamentoActions';
+import { modificaAvaliacao } from '../actions/AvaliacaoActions';
 import SearchHeader from 'react-native-search-header';
 class TelaPrincipal extends Component {
    state = {
@@ -21,9 +23,82 @@ class TelaPrincipal extends Component {
     console.log(paciente);
     this.props.modificaPaciente(paciente);
     if(paciente.etapa == "1" || paciente.etapa == "0"){
-        Actions.avaliacao();
+        let avaliacao = {
+          registro: paciente.registro,
+          codigo: this.props.codigo
+        };
+        if(paciente.etapa == "1"){
+          
+          axios.post("http://10.0.2.2:8080/api/avaliacao/criarAvaliacaoMedico", avaliacao)
+          .then(res => {
+            console.log(JSON.stringify(res.data.data));
+            tratamento = res.data.data;
+            this.props.modificaAvaliacao(avaliacao);
+            Actions.avaliacao();
+          })
+          .catch(error => {
+          });
+          Actions.avaliacao();
+        }else{
+          axios.post("http://10.0.2.2:8080/api/avaliacao/criarAvaliacaoEnfermeiro", avaliacao)
+          .then(res => {
+            console.log(JSON.stringify(res.data.data));
+            tratamento = res.data.data;
+            this.props.modificaAvaliacao(avaliacao);
+            Actions.avaliacao();
+          })
+          .catch(error => {
+          });
+        }
     }else{
-        Actions.tratamento();
+      if(paciente.etapa == "3"){
+        let tratamento = {
+          id : "",
+          data_diag: "",
+          reg_paciente: paciente.registro,
+          nick_prof: this.props.nick_name,
+          data_inicio: "",
+          data_fim: "",
+          comentario: "",
+          pacote: "",
+          ops: []
+          };
+          axios.post("http://10.0.2.2:8080/api/checklist/obterCheckList", tratamento)
+          .then(res => {
+            console.log(JSON.stringify(res.data.data));
+            tratamento = res.data.data;
+            this.props.modificaTratamento(tratamento);
+            Actions.tratamento();
+          })
+          .catch(error => {
+          });
+        }else{
+          var today = new Date();
+          var dd = String(today.getDate()).padStart(2, '0');
+          var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+          var yyyy = today.getFullYear();
+          var hour = today.getHours();
+          var min = today.getMinutes();
+          var sec = today.getSeconds();
+          today = yyyy + '-' + mm + '-' + dd + ' ' + hour + ':' + min + ':' + sec ;
+          let tratamento = {
+            data_diag: today,
+            reg_paciente: paciente.registro,
+            nick_prof: this.props.nick_name,
+            comentario: "",
+            pacote: "3"
+          };
+          axios.post("http://10.0.2.2:8080/api/checklist/criarCheckList", tratamento)
+          .then(res => {
+            console.log(JSON.stringify(res.data.data));
+            tratamento = res.data.data;
+            this.props.modificaTratamento(tratamento);
+            Actions.tratamento();
+          })
+          .catch(error => {
+          });
+        }
+        
     }
   }
   updateSearch = text => {
@@ -85,17 +160,17 @@ class TelaPrincipal extends Component {
     <View style={styles.container}>
       <ScrollView >
         <Header
-          leftComponent={{ icon: 'menu', color: '#fff' }}
+          leftComponent={<Icon name = 'info' color= '#fff' onPress= {() => Actions.recomendacoes()} />}
           centerComponent={{ text: 'Protocolo digital Sepse', style: { color: '#fff' } }}
           rightComponent={<Icon name = 'search' color= '#fff' onPress= {() => this.searchHeader.show()} />}
-          containerStyle={{backgroundColor:'#00b5ec'}}
+          containerStyle={{backgroundColor:'#00b5ec', paddingTop:10}}
           />
         <View style = { styles.status }/>
         <SearchHeader
             ref = {(searchHeader) => {
                 this.searchHeader = searchHeader;
             }}
-            placeholder = 'Search...'
+            placeholder = 'Buscar...'
             placeholderColor = 'gray'
             onClear = {async() => {
                 console.log(`Clearing input!`);
@@ -194,7 +269,12 @@ const mapStateToProps = state => (
   }
 )
 
-export default connect(mapStateToProps, {modificaListAvaliacao,modificaListEmTratamento, modificaListParaTratamento, modificaPaciente})(TelaPrincipal);
+export default connect(mapStateToProps, { modificaListAvaliacao,
+                                          modificaListEmTratamento, 
+                                          modificaListParaTratamento, 
+                                          modificaPaciente, 
+                                          modificaTratamento,
+                                          modificaAvaliacao})(TelaPrincipal);
 const styles = StyleSheet.create({
   container: {
    flex: 1,
