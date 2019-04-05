@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { AppRegistry, SectionList, StyleSheet, Text, View, Alert, ScrollView } from 'react-native';
+import { AppRegistry, SectionList, StyleSheet, Text, View,  ScrollView } from 'react-native';
 import { SearchBar, Header, ListItem, Icon } from 'react-native-elements';
 import { Actions } from 'react-native-router-flux';
 import { connect } from 'react-redux';
@@ -32,18 +32,17 @@ class TelaPrincipal extends Component {
           axios.post("http://10.0.2.2:8080/api/avaliacao/criarAvaliacaoMedico", avaliacao)
           .then(res => {
             console.log(JSON.stringify(res.data.data));
-            tratamento = res.data.data;
+            avaliacao = res.data.data;
             this.props.modificaAvaliacao(avaliacao);
             Actions.avaliacao();
           })
           .catch(error => {
           });
-          Actions.avaliacao();
         }else{
           axios.post("http://10.0.2.2:8080/api/avaliacao/criarAvaliacaoEnfermeiro", avaliacao)
           .then(res => {
             console.log(JSON.stringify(res.data.data));
-            tratamento = res.data.data;
+            avaliacao = res.data.data;
             this.props.modificaAvaliacao(avaliacao);
             Actions.avaliacao();
           })
@@ -90,7 +89,6 @@ class TelaPrincipal extends Component {
           };
           axios.post("http://10.0.2.2:8080/api/checklist/criarCheckList", tratamento)
           .then(res => {
-            console.log(JSON.stringify(res.data.data));
             tratamento = res.data.data;
             this.props.modificaTratamento(tratamento);
             Actions.tratamento();
@@ -136,7 +134,6 @@ class TelaPrincipal extends Component {
         console.log(this.state.list_avaliacao[0]);
       })
       .catch(error => {
-        Alert.alert("Erro", error.response.data.errors[0]);
       });
     }else{
       axios.get("http://10.0.2.2:8080/api/consulta_pacientes/avaliacaoEnf")
@@ -158,7 +155,9 @@ class TelaPrincipal extends Component {
     const { search } = this.state;
     return (
     <View style={styles.container}>
+     
       <ScrollView >
+        
         <Header
           leftComponent={<Icon name = 'info' color= '#fff' onPress= {() => Actions.recomendacoes()} />}
           centerComponent={{ text: 'Protocolo digital Sepse', style: { color: '#fff' } }}

@@ -16,7 +16,7 @@ export default props => (
         <Scene key='telaPrincipal'  component={TelaPrincipal} hideNavBar />
         <Scene key='tratamento' component={Tratamento} title="Tratamento"  navigationBarStyle={styles.navBar} titleStyle={styles.navText}/>
         <Scene key='avaliacao' component={Avaliacao} title="Avaliação"  navigationBarStyle={styles.navBar} titleStyle={styles.navText}/>
-        <Scene key='recomendacoes' component={Recomendacoes} title="Recomendacoes"  navigationBarStyle={styles.navBar} titleStyle={styles.navText}/>
+        <Scene key='recomendacoes' component={Recomendacoes} title="Recomendações"  navigationBarStyle={styles.navBar} titleStyle={styles.navText}/>
 
         
         

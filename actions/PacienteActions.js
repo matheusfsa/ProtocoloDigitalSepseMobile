@@ -4,3 +4,9 @@ export const modificaPaciente = (paciente) => {
         payload:paciente
     }
 }
+export const modificaEtapa = (etapa) => {
+    return {
+        type: 'modifica_etapa',
+        payload:etapa
+    }
+}
